@@ -1,7 +1,12 @@
 {
 	"name": "PDFEmbed",
-	"version": "2.0.2",
-	"author": "Alexia E. Smith",
+	"version": "2.0.3",
+	"author": [
+        "[https://www.mediawiki.org/wiki/User:Alexia_E._Smith Alexia E. Smith]",
+        "[http://www.bitplan.com/index.php/Wolfgang_Fahl Wolfgang Fahl/ProfiWiki]",
+        "[http://hexmode.com Mark A. Hershberger]",
+        "[https://clkoerner.com Chris Koerner]"
+    ],
 	"url": "https://www.mediawiki.org/wiki/Extension:PDFEmbed",
 	"descriptionmsg": "pdfembed_description",
 	"license-name": "LGPL-3.0-only",
