@@ -1,0 +1,12 @@
+{
+	"@metadata": {
+		"authors": []
+	},
+	"pdfembed": "PDF Embed",
+	"pdfembed_description": "Media handler extension for PDF files.",
+	"embed_pdf_no_permission": "You do not have permission to embed PDF files.",
+	"embed_pdf_blank_file": "The URL or file path given to embed a PDF is blank.",
+	"embed_pdf_invalid_file": "The URL or file path $1 does not exist.",
+	"embed_pdf_invalid_user": "An invalid user was specified to permission testing to embed this PDF.",
+	"right-embed_pdf": "Embed PDFs into pages"
+}

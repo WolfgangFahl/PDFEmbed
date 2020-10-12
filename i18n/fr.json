@@ -1,0 +1,14 @@
+{
+	"@metadata": {
+		"authors": [
+			"Seb35"
+		]
+	},
+	"pdfembed": "PDF Embed",
+	"pdfembed_description": "Extension d’affichage des fichiers PDF.",
+	"embed_pdf_no_permission": "Vous n’avez pas la permission d’intégrer des fichiers PDF.",
+	"embed_pdf_blank_file": "L’URL ou le chemin du fichier donné pour intégrer le PDF est vide.",
+	"embed_pdf_invalid_file": "L’URL ou le chemin $1 n’existe pas.",
+	"embed_pdf_invalid_user": "Un utilisateur invalide a été spécifié pour tester les permissions pour intégrer ce PDF.",
+	"right-embed_pdf": "Intégrer des fichiers PDF dans les pages"
+}

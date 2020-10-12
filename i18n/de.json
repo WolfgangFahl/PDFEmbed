@@ -1,0 +1,14 @@
+{
+	"@metadata": {
+		"authors": [
+			"Messerjokke79",
+			"Kghbln"
+		]
+	},
+	"pdfembed": "PDF Embed",
+	"pdfembed_description": "Ermöglicht das Einbetten von PDF-Dateien",
+	"embed_pdf_no_permission": "Du bist nicht berechtigt PDF-Dateien einzubetten.",
+	"embed_pdf_blank_file": "Die URL bzw. der Dateipfad zum Einbetten der PDF-Datei ist leer.",
+	"embed_pdf_invalid_file": "Die URL bzw. der Dateipfad $1 existieren nicht.",
+	"embed_pdf_invalid_user": "Ein ungültiger Benutzer wurde angegeben."
+}

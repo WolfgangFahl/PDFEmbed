@@ -1,0 +1,13 @@
+{
+	"@metadata": {
+		"authors": [
+			"NeftaliYagua"
+		]
+	},
+	"pdfembed": "Incrustar PDF",
+	"pdfembed_description": "Habilita la incrustación de archivos PDF",
+	"embed_pdf_no_permission": "No tiene permitido incrustar archivos PDF",
+	"embed_pdf_blank_file": "La dirección URL o la ruta de acceso al archivo está vacía",
+	"embed_pdf_invalid_file": "La dirección URL o la ruta de acceso $1 no existe",
+	"embed_pdf_invalid_user": "Se ha especificado un usuario no válido"
+}

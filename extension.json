@@ -1,0 +1,42 @@
+{
+	"name": "PDFEmbed",
+	"version": "2.0.2",
+	"author": "Alexia E. Smith",
+	"url": "https://www.mediawiki.org/wiki/Extension:PDFEmbed",
+	"descriptionmsg": "pdfembed_description",
+	"license-name": "LGPL-3.0-only",
+	"requires": {
+		"MediaWiki": ">= 1.29.0"
+	},
+	"type": "parserhook",
+	"GroupPermissions": {
+		"sysop": {
+			"embed_pdf": true
+		}
+	},
+	"AvailableRights": [
+		"embed_pdf"
+	],
+	"MessagesDirs": {
+		"PDFEmbed": [
+			"i18n"
+		]
+	},
+	"AutoloadClasses": {
+		"PDFEmbed": "PDFEmbed.hooks.php",
+		"PDFHandler": "classes/PDFHandler.class.php"
+	},
+	"Hooks": {
+		"ParserFirstCallInit": "PDFEmbed::onParserFirstCallInit"
+	},
+	"FileExtensions": [
+		"pdf"
+	],
+	"config": {
+		"PdfEmbed": {
+			"width": 800,
+			"height": 1090
+		}
+	},
+	"manifest_version": 1
+}
