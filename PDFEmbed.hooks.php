@@ -93,35 +93,77 @@ class PDFEmbed {
 		} else {
 			$page = 1;
 		}
+		if (array_key_exists('iframe', $args)) {
+			$iframe = $parser->recursiveTagParse($args['iframe'], $frame);
+		} else {
+			$iframe = $wgPdfEmbed['iframe'];
+		}
 
 		if ($pdfFile !== false) {
-			return self::embed($pdfFile, $width, $height, $page);
-		} else {
+            $url=$pdfFile->getFullUrl();
+			return self::embed($url, $width, $height, $page,$iframe);
+        } else {
 			return self::error('embed_pdf_invalid_file',$file);
 		}
 	}
 
 	/**
-	 * Returns a HTML object as string.
+	 * Returns an HTML node for the given file as string.
 	 *
 	 * @access	private
-	 * @param	object	File object.
-	 * @param	integer	Width of the object.
-	 * @param	integer	Height of the object.
-	 * @return	string	HTML object.
+	 * @param	URL url to embed.
+	 * @param	integer	width of the iframe.
+	 * @param	integer	height of the iframe.
+   * @param	integer	page of the pdf file.
+   * @param boolean iframe - True if an iframe should be returned else an object is returned
+	 * @return	string	HTML code for iframe.
 	 */
-	static private function embed(File $file, $width, $height, $page) {
-		return Html::rawElement(
-			'iframe',
-			[
-				'width' => $width,
-				'height' => $height,
-				'src' => $file->getFullUrl().'#page='.$page,
-				'style' => 'max-width: 100%;'
-			]
-		);
+  static private function embed($url, $width, $height, $page,$iframe) {
+    # secure and concatenate the url
+    $pdfSafeUrl = htmlentities($url).'#page='.$page;
+    # check the embed mode and return a proper HTML element
+    if ($iframe) {
+		  return Html::rawElement(
+		  	'iframe',
+	  		[
+	      	'width' => $width,
+			  	'height' => $height,
+			  	'src' => $pdfSafeUrl, 
+			  	'style' => 'max-width: 100%;'
+			  ]
+		  );
+    } else {
+      # object mode (default)
+		  return Html::rawElement(
+		  	'object',
+	  		[
+	      	'width' => $width,
+			  	'height' => $height,
+          'data' => $pdfSafeUrl,
+          'type' => 'application/pdf'
+			  ],
+        Html::rawElement(
+           'a',
+           [ 'href'=> $pdfSafeUrl ],
+           'load PDF', // i18n?
+         ),
+		  );
+    }
 	}
-
+	
+	/**
+	 * return a pdfObject with the given data, width and height
+	 * @param data - the data to convert to an object
+	 * @param width - the width in pixels
+	 * @param height - the height in pixels
+	 */
+	static private function embedObject( $data, $width, $height ){
+	    $html='<object width="'.$width.'" height="'.$height.'" data="'.htmlentities($data).'" type="application/pdf">'."\n";
+	    $html.='<a href="'.htmlentities($data).'">load PDF</a>'."\n";
+	    $html.='</object>'."\n";
+	    return $html;
+	}
+	
 	/**
 	 * Returns a standard error message.
 	 *

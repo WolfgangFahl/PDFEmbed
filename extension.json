@@ -40,7 +40,8 @@
 	"config": {
 		"PdfEmbed": {
 			"width": 800,
-			"height": 1090
+			"height": 1090,
+      "iframe": false
 		}
 	},
 	"manifest_version": 1
