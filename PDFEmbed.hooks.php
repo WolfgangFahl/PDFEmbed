@@ -79,20 +79,27 @@ class PDFEmbed {
 		$pdfFile = wfFindFile($file);
 
 		if (array_key_exists('width', $args)) {
-			$width = intval($parser->recursiveTagParse($args['width'], $frame));
+			$widthStr = $parser->recursiveTagParse($args['width'], $frame);
 		} else {
-			$width = intval($wgPdfEmbed['width']);
+			$widthStr =$wgPdfEmbed['width'];
 		}
 		if (array_key_exists('height', $args)) {
-			$height = intval($parser->recursiveTagParse($args['height'], $frame));
+			$heightStr = $parser->recursiveTagParse($args['height'], $frame);
 		} else {
-			$height = intval($wgPdfEmbed['height']);
+			$heightStr = $wgPdfEmbed['height'];
 		}
 		if (array_key_exists('page', $args)) {
 			$page = intval($parser->recursiveTagParse($args['page'], $frame));
 		} else {
 			$page = 1;
 		}
+		if( !preg_match( '~^\d+~', $widthStr ) ) {
+			return self::error( "embed_pdf_invalid_width",$widthStr );
+		} elseif ( !preg_match( '~^\d+~',$heightStr ) ) {
+			return self::error( "embed_pdf_invalid_height",$heightStr );
+		}
+		$width=intVal($widthStr);
+		$height=intVal($heightStr);
 		if (array_key_exists('iframe', $args)) {
 			$iframe = $parser->recursiveTagParse($args['iframe'], $frame);
 		} else {
@@ -100,9 +107,9 @@ class PDFEmbed {
 		}
 
 		if ($pdfFile !== false) {
-            $url=$pdfFile->getFullUrl();
+			$url=$pdfFile->getFullUrl();
 			return self::embed($url, $width, $height, $page,$iframe);
-        } else {
+		} else {
 			return self::error('embed_pdf_invalid_file',$file);
 		}
 	}

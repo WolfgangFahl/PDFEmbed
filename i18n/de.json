@@ -7,6 +7,8 @@
 	},
 	"pdfembed": "PDF Embed",
 	"pdfembed_description": "Ermöglicht das Einbetten von PDF-Dateien",
+  "embed_pdf_invalid_height": "height $1 ist nicht anwendbar.",
+  "embed_pdf_invalid_width": "width $1 ist nicht anwendbar.",
 	"embed_pdf_no_permission": "Du bist nicht berechtigt PDF-Dateien einzubetten.",
 	"embed_pdf_blank_file": "Die URL bzw. der Dateipfad zum Einbetten der PDF-Datei ist leer.",
 	"embed_pdf_invalid_file": "Die URL bzw. der Dateipfad $1 existieren nicht.",
