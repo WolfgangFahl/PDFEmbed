@@ -42,6 +42,28 @@ class PDFEmbed
     }
 
     /**
+     * remove the File: prefix depending on the language or in english default form
+     *
+     * @param
+     *            filename - the filename for which to fix the prefix
+     * @return    string - the filename without the File: / Media: or i18n File/Media prefix
+     */
+    static public function removeFilePrefix($filename)
+    {
+        # there are four possible prefixes
+        $ns_media_wiki_lang = MediaWiki\MediaWikiServices::getInstance()->getContentLanguage()->getFormattedNsText(NS_MEDIA);
+        $ns_file_wiki_lang = MediaWiki\MediaWikiServices::getInstance()->getContentLanguage()->getFormattedNsText(NS_FILE);
+        $ns_media_lang_en = MediaWiki\MediaWikiServices::getInstance()->getLanguageFactory()
+            ->getLanguage('en')
+            ->getFormattedNsText(NS_MEDIA);
+        $ns_file_lang_en = MediaWiki\MediaWikiServices::getInstance()->getLanguageFactory()
+            ->getLanguage('en')
+            ->getFormattedNsText(NS_FILE);
+        $filename=preg_replace("/^($ns_media_wiki_lang|$ns_file_wiki_lang|$ns_media_lang_en|$ns_file_lang_en):/", '', $filename);
+        return $filename;
+    }
+
+    /**
      * Generates the PDF object tag.
      *
      * @access public
@@ -128,6 +150,7 @@ class PDFEmbed
             if (count($re) == 3) {
                 $page = $re[2];
             }
+            $filename = self::removeFilePrefix($filename);
             $pdfFile = wfFindFile($filename);
             if ($pdfFile !== false) {
                 $url = $pdfFile->getFullUrl();
