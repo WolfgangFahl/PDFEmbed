@@ -50,16 +50,20 @@ class PDFEmbed
      */
     static public function removeFilePrefix($filename)
     {
+				$mwservices=MediaWiki\MediaWikiServices::getInstance();
+        $contentLang=$mwservices->getContentLanguage()->getFormattedNsText(NS_MEDIA);
         # there are four possible prefixes
-        $ns_media_wiki_lang = MediaWiki\MediaWikiServices::getInstance()->getContentLanguage()->getFormattedNsText(NS_MEDIA);
-        $ns_file_wiki_lang = MediaWiki\MediaWikiServices::getInstance()->getContentLanguage()->getFormattedNsText(NS_FILE);
-        $ns_media_lang_en = MediaWiki\MediaWikiServices::getInstance()->getLanguageFactory()
-            ->getLanguage('en')
-            ->getFormattedNsText(NS_MEDIA);
-        $ns_file_lang_en = MediaWiki\MediaWikiServices::getInstance()->getLanguageFactory()
-            ->getLanguage('en')
-            ->getFormattedNsText(NS_FILE);
-        $filename=preg_replace("/^($ns_media_wiki_lang|$ns_file_wiki_lang|$ns_media_lang_en|$ns_file_lang_en):/", '', $filename);
+        $ns_media_wiki_lang = $contentLang->getFormattedNsText(NS_MEDIA);
+        $ns_file_wiki_lang  = $contentLang->getFormattedNsText(NS_FILE);
+        if (method_exists($mwservices,"getLanguageFactory")) {
+          $langFactory=$mwservices->getLanguageFactory();
+          $lang=$langFactory->getLanguage('en');
+        	$ns_media_lang_en = $lang->getFormattedNsText(NS_MEDIA);
+          $ns_file_lang_en  = $lang->getFormattedNsText(NS_FILE);
+          $filename=preg_replace("/^($ns_media_wiki_lang|$ns_file_wiki_lang|$ns_media_lang_en|$ns_file_lang_en):/", '', $filename);
+        } else {
+          $filename=preg_replace("/^($ns_media_wiki_lang|$ns_file_wiki_lang):/", '', $filename);
+        }
         return $filename;
     }
 
