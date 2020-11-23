@@ -85,7 +85,7 @@ class PDFEmbed
      */
     static public function generateTag($obj, $args = [], Parser $parser, PPFrame $frame)
     {
-        global $wgPdfEmbed, $wgRequest, $wgUser;
+        global $wgPdfEmbed, $wgRequest, $wgUser, $wgPDF;
         // disable the cache
         PDFEmbed::disableCache($parser);
 
@@ -176,28 +176,31 @@ class PDFEmbed
                 return self::error("embed_pdf_invalid_url", $html);
             }
 
-            foreach ($wgPDF['black'] as $x => $y) {
-                $wgPDF['black'][$x] = strtolower($y);
-            }
-            foreach ($wgPDF['white'] as $x => $y) {
-                $wgPDF['white'][$x] = strtolower($y);
-            }
-            $host = strtolower($domain['host']);
+						if (isset($wgPDF)) {
 
-            $whitelisted = false;
-            if (in_array($host, $wgPDF['white'])) {
-                $whitelisted = true;
-            }
+										foreach ($wgPDF['black'] as $x => $y) {
+												$wgPDF['black'][$x] = strtolower($y);
+										}
+										foreach ($wgPDF['white'] as $x => $y) {
+												$wgPDF['white'][$x] = strtolower($y);
+										}
+										$host = strtolower($domain['host']);
 
-            if ($wgPDF['white'] != array() && ! $whitelisted) {
-                return self::error("embed_pdf_domain_not_white", $host);
-            }
+										$whitelisted = false;
+										if (in_array($host, $wgPDF['white'])) {
+												$whitelisted = true;
+										}
 
-            if (! $whitelisted) {
-                if (in_array($host, $wgPDF['black'])) {
-                    return pdfError("embed_pdf_domain_black", $host);
-                }
-            }
+										if ($wgPDF['white'] != array() && ! $whitelisted) {
+												return self::error("embed_pdf_domain_not_white", $host);
+										}
+
+										if (! $whitelisted) {
+												if (in_array($host, $wgPDF['black'])) {
+														return pdfError("embed_pdf_domain_black", $host);
+												}
+										}
+						}
 
             # check that url is valid
             if (filter_var($html, FILTER_VALIDATE_URL, FILTER_FLAG_PATH_REQUIRED)) {
