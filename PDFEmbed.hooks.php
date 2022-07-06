@@ -11,6 +11,8 @@
  *
  **/
 
+use MediaWiki\MediaWikiServices;
+
 class PDFEmbed
 {
 
@@ -51,7 +53,7 @@ class PDFEmbed
      */
     static public function removeFilePrefix($filename)
     {
-        $mwServices = MediaWiki\MediaWikiServices::getInstance();
+        $mwServices = MediaWikiServices::getInstance();
         if (method_exists($mwServices, "getContentLanguage")) {
             $contentLang = $mwServices->getContentLanguage();
             # there are four possible prefixes
@@ -102,7 +104,7 @@ class PDFEmbed
         } else {
             // https://www.mediawiki.org/wiki/Manual:UserFactory.php
             $revUserName = $parser->getRevisionUser();
-            $userFactory = MediaWiki\MediaWikiServices::getInstance()->getUserFactory();
+            $userFactory = MediaWikiServices::getInstance()->getUserFactory();
             $user = $userFactory->newFromName($revUserName);
         }
 
@@ -110,7 +112,7 @@ class PDFEmbed
             return self::error('embed_pdf_invalid_user');
         }
 
-        if (!MediaWiki\MediaWikiServices::getInstance()->getPermissionManager()->userHasRight($user, 'embed_pdf')) {
+        if (!MediaWikiServices::getInstance()->getPermissionManager()->userHasRight($user, 'embed_pdf')) {
             return self::error('embed_pdf_no_permission');
         }
 
@@ -169,7 +171,7 @@ class PDFEmbed
             }
 
             $filename = self::removeFilePrefix($filename);
-            $pdfFile = MediaWiki\MediaWikiServices::getInstance()->getRepoGroup()->findFile($filename);
+            $pdfFile = MediaWikiServices::getInstance()->getRepoGroup()->findFile($filename);
 
             if ($pdfFile !== false) {
                 $url = $pdfFile->getFullUrl();
