@@ -1,0 +1,16 @@
+{
+	"@metadata": {
+		"authors": [
+			"Spas.Z.Spasov"
+		]
+	},
+	"pdfembed": "Вграждане на PDF файлове",
+	"pdfembed_description": "Разширение за обработване на PDF файлове.",
+	"embed_pdf_invalid_height": "Невалиден параметър за височина (height) $1.",
+	"embed_pdf_invalid_width": " Невалиден параметър за широчина (width) $1.",
+	"embed_pdf_no_permission": "Нямате права за вграждане на PDF файлове.",
+	"embed_pdf_blank_file": "Адресът (URL) или пътят на PDF файла за вграждане не е зададен.",
+	"embed_pdf_invalid_file": "Адресът (URL) на файла $1 не съществува.",
+	"embed_pdf_invalid_user": "Посочен е невалиден потребител за тестване на разширението за вграждане на PDF файлове.",
+	"right-embed_pdf": "Вграждане на PDF файлове в страници"
+}
