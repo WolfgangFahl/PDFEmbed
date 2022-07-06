@@ -249,6 +249,7 @@ class PDFEmbed
         # check the embed mode and return a proper HTML element
         if ($iframe) {
             return Html::rawElement('iframe', [
+                'class' => 'pdf-embed',
                 'width' => $width,
                 'height' => $height,
                 'src' => $pdfSafeUrl,
@@ -257,9 +258,11 @@ class PDFEmbed
         } else {
             # object mode (default)
             return Html::rawElement('object', [
+                'class' => 'pdf-embed',
                 'width' => $width,
                 'height' => $height,
                 'data' => $pdfSafeUrl,
+                'style' => 'max-width: 100%;',
                 'type' => 'application/pdf'
             ], Html::rawElement(
                 'a',
