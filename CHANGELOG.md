@@ -7,7 +7,7 @@
   * Use `MediaWiki\MediaWikiServices::getInstance()->getUserFactory()->newFromName($revUserName)` instead of `User::newFromName($revUserName)`,
   * Use `MediaWiki\MediaWikiServices::getInstance()->getPermissionManager()->userHasRight($user, 'embed_pdf')` instead of `$user->isAllowed('embed_pdf')`,
   * Use `MediaWiki\MediaWikiServices::getInstance()->getRepoGroup()->findFile($filename)` instead of `wfFindFile($filename)`.
-* Tidy up rhe code and remove unused function `embedObject()` (note the `embed()` function does this by default).
+* Tidy up the code and remove unused function `embedObject()` (note the `embed()` function does this by default).
 * Bulgarian Translations provided by Spas Z. Spasov <spas.z.spasov@gmail.com>
 
 ## v2.0.2
