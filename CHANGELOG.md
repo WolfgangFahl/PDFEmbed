@@ -2,7 +2,8 @@
 
 ## v3.0.0
 
-* Make it fully compatible with MediaWiki 1.38 - deal with all deprecated features:
+* Make it fully compatible with MediaWiki 1.38 (and require >= 1.38.0). Deal with all deprecated features:
+  * Use [`$wgOut->disableClientCache()`](https://doc.wikimedia.org/mediawiki-core/master/php/classOutputPage.html#a65494796ef2a9e3cb0864d8c2185fa70) instead of [`$wgOut->enableClientCache(false)`](https://doc.wikimedia.org/mediawiki-core/master/php/classOutputPage.html#a97ca228e1106736ef2b3b988543af448),
   * Use `RequestContext::getMain()->getUser()` instead of `$wgUser`,
   * Use `MediaWiki\MediaWikiServices::getInstance()->getUserFactory()->newFromName($revUserName)` instead of `User::newFromName($revUserName)`,
   * Use `MediaWiki\MediaWikiServices::getInstance()->getPermissionManager()->userHasRight($user, 'embed_pdf')` instead of `$user->isAllowed('embed_pdf')`,
@@ -10,7 +11,7 @@
 * Tidy up the code and remove the unused function `embedObject()` - note the `embed()` function does this when `$iframe=true`.
 * According to a filter applied in [`ve.init.mw.ArticleTargetSaver.js`](https://github.com/wikimedia/mediawiki-extensions-VisualEditor/blob/d9e56ef69ac6938417b558dcf1a7f63e8048256d/modules/ve-mw/preinit/ve.init.mw.ArticleTargetSaver.js#L75) (see also [`T65229`](https://phabricator.wikimedia.org/T65229)) the HTML tag `<object>` is not compatible with Visual Editor, so the default value for `$iframe` in the `extension.json` file is switched to `true`.
 * Add CSS class `pdf-embed` to the generated (iframe/object) HTML tag.
-* Bulgarian Translations provided by Spas Z. Spasov <spas.z.spasov@gmail.com>
+* Bulgarian Translations provided by Spas Z. Spasov <spas.z.spasov@metalevel.tech>
 
 ## v2.0.2
 
