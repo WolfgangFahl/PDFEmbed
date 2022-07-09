@@ -8,7 +8,9 @@
   * Use `MediaWiki\MediaWikiServices::getInstance()->getUserFactory()->newFromName($revUserName)` instead of `User::newFromName($revUserName)`,
   * Use `MediaWiki\MediaWikiServices::getInstance()->getPermissionManager()->userHasRight($user, 'embed_pdf')` instead of `$user->isAllowed('embed_pdf')`,
   * Use `MediaWiki\MediaWikiServices::getInstance()->getRepoGroup()->findFile($filename)` instead of `wfFindFile($filename)`.
-* Tidy up the code and remove the unused function `embedObject()` - note the `embed()` function does this when `$iframe=true`.
+* Tidy up the code and:
+  * Remove the unused function `embedObject()` - note the `embed()` function does this when `$iframe=true`,
+  * Replace some short names: `$a` with `$anchor`; `$re` with `$matches`.
 * According to a filter applied in [`ve.init.mw.ArticleTargetSaver.js`](https://github.com/wikimedia/mediawiki-extensions-VisualEditor/blob/d9e56ef69ac6938417b558dcf1a7f63e8048256d/modules/ve-mw/preinit/ve.init.mw.ArticleTargetSaver.js#L75) (see also [`T65229`](https://phabricator.wikimedia.org/T65229)) the HTML tag `<object>` is not compatible with Visual Editor, so the default value for `$iframe` in the `extension.json` file is switched to `true`.
 * Add CSS class `pdf-embed` to the generated (iframe/object) HTML tag.
 * Bulgarian Translations provided by Spas Z. Spasov <spas.z.spasov@metalevel.tech>
