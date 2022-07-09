@@ -41,7 +41,12 @@ class PDFEmbed
         // see https://gerrit.wikimedia.org/r/plugins/gitiles/mediawiki/extensions/MagicNoCache/+/refs/heads/master/src/MagicNoCacheHooks.php
         global $wgOut;
         $parser->getOutput()->updateCacheExpiry(0);
-        $wgOut->disableClientCache();
+
+        if ( method_exists( $wgOut, 'disableClientCache' )) {
+            $wgOut->disableClientCache();
+        } else {
+            $wgOut->enableClientCache(false);
+        }
     }
 
     /**
