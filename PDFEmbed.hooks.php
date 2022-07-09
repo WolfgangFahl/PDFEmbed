@@ -42,7 +42,7 @@ class PDFEmbed
         global $wgOut;
         $parser->getOutput()->updateCacheExpiry(0);
 
-        if ( method_exists( $wgOut, 'disableClientCache' )) {
+        if (method_exists($wgOut, 'disableClientCache')) {
             $wgOut->disableClientCache();
         } else {
             $wgOut->enableClientCache(false);
@@ -59,11 +59,14 @@ class PDFEmbed
     static public function removeFilePrefix($filename)
     {
         $mwServices = MediaWikiServices::getInstance();
+
         if (method_exists($mwServices, "getContentLanguage")) {
             $contentLang = $mwServices->getContentLanguage();
-            # there are four possible prefixes
+
+            # there are four possible prefixes: 'File' and 'Media' in English and in the wiki's language
             $ns_media_wiki_lang = $contentLang->getFormattedNsText(NS_MEDIA);
             $ns_file_wiki_lang  = $contentLang->getFormattedNsText(NS_FILE);
+
             if (method_exists($mwServices, "getLanguageFactory")) {
                 $langFactory = $mwServices->getLanguageFactory();
                 $lang = $langFactory->getLanguage('en');
@@ -125,11 +128,11 @@ class PDFEmbed
         // so we might reverse some of the parsing again by examining the html
         // whether it contains an anchor <a href= ...
         if (strpos($html, '<a') !== false) {
-            $a = new SimpleXMLElement($html);
+            $anchor = new SimpleXMLElement($html);
             // is there a href element?
-            if (isset($a['href'])) {
+            if (isset($anchor['href'])) {
                 // that's what we want ...
-                $html = $a['href'];
+                $html = $anchor['href'];
             }
         }
 
@@ -168,11 +171,11 @@ class PDFEmbed
 
         # if there are no slashes in the name we assume this
         # might be a pointer to a file
-        if (preg_match('~^([^\/]+\.pdf)(#[0-9]+)?$~', $html, $re)) {
+        if (preg_match('~^([^\/]+\.pdf)(#[0-9]+)?$~', $html, $matches)) {
             # re contains the groups
-            $filename = $re[1];
-            if (count($re) == 3) {
-                $page = $re[2];
+            $filename = $matches[1];
+            if (count($matches) == 3) {
+                $page = $matches[2];
             }
 
             $filename = self::removeFilePrefix($filename);
