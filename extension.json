@@ -1,12 +1,13 @@
 {
 	"name": "PDFEmbed",
-	"version": "2.0.5",
+	"version": "3.0.0",
 	"author": [
-        "[https://www.mediawiki.org/wiki/User:Alexia_E._Smith Alexia E. Smith]",
-        "[http://www.bitplan.com/index.php/Wolfgang_Fahl Wolfgang Fahl/ProfiWiki]",
-        "[http://hexmode.com Mark A. Hershberger]",
-        "[https://clkoerner.com Chris Koerner]"
-    ],
+		"[https://www.mediawiki.org/wiki/User:Alexia_E._Smith Alexia E. Smith]",
+		"[http://www.bitplan.com/index.php/Wolfgang_Fahl Wolfgang Fahl/ProfiWiki]",
+		"[http://hexmode.com Mark A. Hershberger]",
+		"[https://clkoerner.com Chris Koerner]",
+		"[https://github.com/metalevel-tech Spas Z. Spasov]"
+	],
 	"url": "https://www.mediawiki.org/wiki/Extension:PDFEmbed",
 	"descriptionmsg": "pdfembed_description",
 	"license-name": "LGPL-3.0-only",
@@ -41,7 +42,7 @@
 		"PdfEmbed": {
 			"width": 800,
 			"height": 1090,
-      "iframe": false
+			"iframe": true
 		}
 	},
 	"manifest_version": 1

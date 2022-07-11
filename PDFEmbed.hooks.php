@@ -7,9 +7,12 @@
  * @author		Alexia E. Smith
  * @license		LGPLv3 http://opensource.org/licenses/lgpl-3.0.html
  * @package		PDFEmbed
- * @link		http://www.mediawiki.org/wiki/Extension:PDFEmbed
+ * @link		https://www.mediawiki.org/wiki/Extension:PDFEmbed
  *
  **/
+
+use MediaWiki\MediaWikiServices;
+
 class PDFEmbed
 {
 
@@ -38,7 +41,12 @@ class PDFEmbed
         // see https://gerrit.wikimedia.org/r/plugins/gitiles/mediawiki/extensions/MagicNoCache/+/refs/heads/master/src/MagicNoCacheHooks.php
         global $wgOut;
         $parser->getOutput()->updateCacheExpiry(0);
-        $wgOut->enableClientCache(false);
+
+        if (method_exists($wgOut, 'disableClientCache')) {
+            $wgOut->disableClientCache();
+        } else {
+            $wgOut->enableClientCache(false);
+        }
     }
 
     /**
@@ -50,22 +58,25 @@ class PDFEmbed
      */
     static public function removeFilePrefix($filename)
     {
-				$mwservices=MediaWiki\MediaWikiServices::getInstance();
-        if (method_exists($mwservices,"getContentLanguage")) {
-        	$contentLang=$mwservices->getContentLanguage();
-        	# there are four possible prefixes
-        	$ns_media_wiki_lang = $contentLang->getFormattedNsText(NS_MEDIA);
-        	$ns_file_wiki_lang  = $contentLang->getFormattedNsText(NS_FILE);
-        	if (method_exists($mwservices,"getLanguageFactory")) {
-						$langFactory=$mwservices->getLanguageFactory();
-          	$lang=$langFactory->getLanguage('en');
-        		$ns_media_lang_en = $lang->getFormattedNsText(NS_MEDIA);
-          	$ns_file_lang_en  = $lang->getFormattedNsText(NS_FILE);
-          	$filename=preg_replace("/^($ns_media_wiki_lang|$ns_file_wiki_lang|$ns_media_lang_en|$ns_file_lang_en):/", '', $filename);
-        	} else {
-         		$filename=preg_replace("/^($ns_media_wiki_lang|$ns_file_wiki_lang):/", '', $filename);
-        	}
-				}
+        $mwServices = MediaWikiServices::getInstance();
+
+        if (method_exists($mwServices, "getContentLanguage")) {
+            $contentLang = $mwServices->getContentLanguage();
+
+            # there are four possible prefixes: 'File' and 'Media' in English and in the wiki's language
+            $ns_media_wiki_lang = $contentLang->getFormattedNsText(NS_MEDIA);
+            $ns_file_wiki_lang  = $contentLang->getFormattedNsText(NS_FILE);
+
+            if (method_exists($mwServices, "getLanguageFactory")) {
+                $langFactory = $mwServices->getLanguageFactory();
+                $lang = $langFactory->getLanguage('en');
+                $ns_media_lang_en = $lang->getFormattedNsText(NS_MEDIA);
+                $ns_file_lang_en  = $lang->getFormattedNsText(NS_FILE);
+                $filename = preg_replace("/^($ns_media_wiki_lang|$ns_file_wiki_lang|$ns_media_lang_en|$ns_file_lang_en):/", '', $filename);
+            } else {
+                $filename = preg_replace("/^($ns_media_wiki_lang|$ns_file_wiki_lang):/", '', $filename);
+            }
+        }
         return $filename;
     }
 
@@ -85,27 +96,31 @@ class PDFEmbed
      */
     static public function generateTag($obj, $args = [], Parser $parser, PPFrame $frame)
     {
-        global $wgPdfEmbed, $wgRequest, $wgUser, $wgPDF;
+        global $wgPdfEmbed, $wgRequest, $wgPDF;
         // disable the cache
         PDFEmbed::disableCache($parser);
 
         // grab the uri by parsing to html
         $html = $parser->recursiveTagParse($obj, $frame);
+
         // check the action which triggered us
         $requestAction = $wgRequest->getVal('action');
+
         // depending on the action get the responsible user
         if ($requestAction == 'edit' || $requestAction == 'submit') {
-            $user = $wgUser;
+            $user = RequestContext::getMain()->getUser();
         } else {
+            // https://www.mediawiki.org/wiki/Manual:UserFactory.php
             $revUserName = $parser->getRevisionUser();
-            $user = User::newFromName($revUserName);
+            $userFactory = MediaWikiServices::getInstance()->getUserFactory();
+            $user = $userFactory->newFromName($revUserName);
         }
 
         if ($user === false) {
             return self::error('embed_pdf_invalid_user');
         }
 
-        if (! $user->isAllowed('embed_pdf')) {
+        if (!MediaWikiServices::getInstance()->getPermissionManager()->userHasRight($user, 'embed_pdf')) {
             return self::error('embed_pdf_no_permission');
         }
 
@@ -113,11 +128,11 @@ class PDFEmbed
         // so we might reverse some of the parsing again by examining the html
         // whether it contains an anchor <a href= ...
         if (strpos($html, '<a') !== false) {
-            $a = new SimpleXMLElement($html);
+            $anchor = new SimpleXMLElement($html);
             // is there a href element?
-            if (isset($a['href'])) {
+            if (isset($anchor['href'])) {
                 // that's what we want ...
-                $html = $a['href'];
+                $html = $anchor['href'];
             }
         }
 
@@ -126,38 +141,46 @@ class PDFEmbed
         } else {
             $widthStr = $wgPdfEmbed['width'];
         }
+
         if (array_key_exists('height', $args)) {
             $heightStr = $parser->recursiveTagParse($args['height'], $frame);
         } else {
             $heightStr = $wgPdfEmbed['height'];
         }
+
         if (array_key_exists('page', $args)) {
             $page = intval($parser->recursiveTagParse($args['page'], $frame));
         } else {
             $page = 1;
         }
-        if (! preg_match('~^\d+~', $widthStr)) {
+
+        if (!preg_match('~^\d+~', $widthStr)) {
             return self::error("embed_pdf_invalid_width", $widthStr);
-        } elseif (! preg_match('~^\d+~', $heightStr)) {
+        } elseif (!preg_match('~^\d+~', $heightStr)) {
             return self::error("embed_pdf_invalid_height", $heightStr);
         }
+
         $width = intVal($widthStr);
         $height = intVal($heightStr);
+
         if (array_key_exists('iframe', $args)) {
             $iframe = $parser->recursiveTagParse($args['iframe'], $frame);
         } else {
             $iframe = $wgPdfEmbed['iframe'];
         }
+
         # if there are no slashes in the name we assume this
         # might be a pointer to a file
-        if (preg_match('~^([^\/]+\.pdf)(#[0-9]+)?$~', $html, $re)) {
+        if (preg_match('~^([^\/]+\.pdf)(#[0-9]+)?$~', $html, $matches)) {
             # re contains the groups
-            $filename = $re[1];
-            if (count($re) == 3) {
-                $page = $re[2];
+            $filename = $matches[1];
+            if (count($matches) == 3) {
+                $page = $matches[2];
             }
+
             $filename = self::removeFilePrefix($filename);
-            $pdfFile = wfFindFile($filename);
+            $pdfFile = MediaWikiServices::getInstance()->getRepoGroup()->findFile($filename);
+
             if ($pdfFile !== false) {
                 $url = $pdfFile->getFullUrl();
                 return self::embed($url, $width, $height, $page, $iframe);
@@ -167,40 +190,42 @@ class PDFEmbed
         } else {
             // parse the given url
             $domain = parse_url($html);
+
             // check that the parsing worked and retrieve a valid host
             // no relative urls are allowed ...
-            if ($domain === false || (! isset($domain['host']))) {
-                if (! isset($domain['host'])) {
+            if ($domain === false || (!isset($domain['host']))) {
+                if (!isset($domain['host'])) {
                     return self::error("embed_pdf_invalid_relative_domain", $html);
                 }
                 return self::error("embed_pdf_invalid_url", $html);
             }
 
-						if (isset($wgPDF)) {
+            if (isset($wgPDF)) {
 
-										foreach ($wgPDF['black'] as $x => $y) {
-												$wgPDF['black'][$x] = strtolower($y);
-										}
-										foreach ($wgPDF['white'] as $x => $y) {
-												$wgPDF['white'][$x] = strtolower($y);
-										}
-										$host = strtolower($domain['host']);
+                foreach ($wgPDF['black'] as $x => $y) {
+                    $wgPDF['black'][$x] = strtolower($y);
+                }
+                foreach ($wgPDF['white'] as $x => $y) {
+                    $wgPDF['white'][$x] = strtolower($y);
+                }
 
-										$whitelisted = false;
-										if (in_array($host, $wgPDF['white'])) {
-												$whitelisted = true;
-										}
+                $host = strtolower($domain['host']);
+                $whitelisted = false;
 
-										if ($wgPDF['white'] != array() && ! $whitelisted) {
-												return self::error("embed_pdf_domain_not_white", $host);
-										}
+                if (in_array($host, $wgPDF['white'])) {
+                    $whitelisted = true;
+                }
 
-										if (! $whitelisted) {
-												if (in_array($host, $wgPDF['black'])) {
-														return pdfError("embed_pdf_domain_black", $host);
-												}
-										}
-						}
+                if ($wgPDF['white'] != array() && !$whitelisted) {
+                    return self::error("embed_pdf_domain_not_white", $host);
+                }
+
+                if (!$whitelisted) {
+                    if (in_array($host, $wgPDF['black'])) {
+                        return self::error("embed_pdf_domain_black", $host);
+                    }
+                }
+            }
 
             # check that url is valid
             if (filter_var($html, FILTER_VALIDATE_URL, FILTER_FLAG_PATH_REQUIRED)) {
@@ -234,6 +259,7 @@ class PDFEmbed
         # check the embed mode and return a proper HTML element
         if ($iframe) {
             return Html::rawElement('iframe', [
+                'class' => 'pdf-embed',
                 'width' => $width,
                 'height' => $height,
                 'src' => $pdfSafeUrl,
@@ -242,33 +268,20 @@ class PDFEmbed
         } else {
             # object mode (default)
             return Html::rawElement('object', [
+                'class' => 'pdf-embed',
                 'width' => $width,
                 'height' => $height,
                 'data' => $pdfSafeUrl,
+                'style' => 'max-width: 100%;',
                 'type' => 'application/pdf'
-            ], Html::rawElement('a', [
-                'href' => $pdfSafeUrl
-            ], 'load PDF' // i18n?
+            ], Html::rawElement(
+                'a',
+                [
+                    'href' => $pdfSafeUrl
+                ],
+                'load PDF' // i18n?
             ));
         }
-    }
-
-    /**
-     * return a pdfObject with the given data, width and height
-     *
-     * @param
-     *            data - the data to convert to an object
-     * @param
-     *            width - the width in pixels
-     * @param
-     *            height - the height in pixels
-     */
-    static private function embedObject($data, $width, $height)
-    {
-        $html = '<object width="' . $width . '" height="' . $height . '" data="' . htmlentities($data) . '" type="application/pdf">' . "\n";
-        $html .= '<a href="' . htmlentities($data) . '">load PDF</a>' . "\n";
-        $html .= '</object>' . "\n";
-        return $html;
     }
 
     /**
