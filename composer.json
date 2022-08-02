@@ -13,5 +13,8 @@
     "[http://hexmode.com Mark A. Hershberger]",
     "[https://clkoerner.com Chris Koerner]",
     "[https://github.com/metalevel-tech Spas Z. Spasov]"
-  ]
+  ],
+  "extra": {
+    "installer-name": "PDFembed"
+  }
 }
