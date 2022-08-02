@@ -15,6 +15,31 @@ To install this extension, add the following to the end of the LocalSettings.php
 wfLoadExtension('PDFEmbed');
 ```
 
+Composer installation:
+`composer.local.json`:
+
+````json
+{
+  "repositories": [
+    {
+      "type": "vcs",
+      "url": "https://github.com/WolfgangFahl/PDFEmbed"
+    }
+  ],
+  "require": {
+    "WolfgangFahl/PDFembed": "dev-main"
+  },
+  "extra": {
+    "merge-plugin": {
+      "include": [
+        "extensions/*/composer.json",
+        "skins/*/composer.json"
+      ]
+    }
+  }
+}
+````
+
 Configuration
 ---------------------
 
