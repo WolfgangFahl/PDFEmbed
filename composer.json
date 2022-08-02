@@ -2,7 +2,7 @@
   "name": "WolfgangFahl/PDFembed",
   "type": "mediawiki-extension",
   "description": "PDFEmbed allows Adobe Acrobat PDF files to be embedded into a wiki article using tags. The PDF file extension is automatically added and necessarily default permissions are configured. Future functionality will allow this extension to act as a media handler for PDF files.",
-  "homepage": "https://www.mediawiki.org/wiki/Extension:MatomoAnalytics",
+  "homepage": "https://www.mediawiki.org/wiki/Extension:PDFEmbed",
   "license": "LGPL-3.0-only",
   "require": {
     "composer/installers": ">=1.0.1"
