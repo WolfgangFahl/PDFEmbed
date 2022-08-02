@@ -27,7 +27,7 @@ Composer installation:
     }
   ],
   "require": {
-    "WolfgangFahl/PDFembed": "dev-main"
+    "WolfgangFahl/PDFembed": "*"
   },
   "extra": {
     "merge-plugin": {
