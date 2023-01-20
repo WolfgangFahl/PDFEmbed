@@ -112,11 +112,16 @@ class PDFEmbed
         } else {
             // https://www.mediawiki.org/wiki/Manual:UserFactory.php
             $revUserName = $parser->getRevisionUser();
+
+            if (empty($revUserName)) {
+                return self::error('embed_pdf_invalid_user');
+            }
+
             $userFactory = MediaWikiServices::getInstance()->getUserFactory();
             $user = $userFactory->newFromName($revUserName);
         }
 
-        if ($user === false) {
+        if (empty($user)) {
             return self::error('embed_pdf_invalid_user');
         }
 
