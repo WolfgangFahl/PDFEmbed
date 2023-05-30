@@ -103,23 +103,9 @@ class PDFEmbed
         // grab the uri by parsing to html
         $html = $parser->recursiveTagParse($obj, $frame);
 
-        // check the action which triggered us
-        $requestAction = $wgRequest->getVal('action');
+		$request = RequestContext::getMain();
 
-        // depending on the action get the responsible user
-        if ($requestAction == 'edit' || $requestAction == 'submit') {
-            $user = RequestContext::getMain()->getUser();
-        } else {
-            // https://www.mediawiki.org/wiki/Manual:UserFactory.php
-            $revUserName = $parser->getRevisionUser();
-
-            if (empty($revUserName)) {
-                return self::error('embed_pdf_invalid_user');
-            }
-
-            $userFactory = MediaWikiServices::getInstance()->getUserFactory();
-            $user = $userFactory->newFromName($revUserName);
-        }
+		$user = $request->getUser();
 
         if (empty($user)) {
             return self::error('embed_pdf_invalid_user');
@@ -200,7 +186,11 @@ class PDFEmbed
             // no relative urls are allowed ...
             if ($domain === false || (!isset($domain['host']))) {
                 if (!isset($domain['host'])) {
-                    return self::error("embed_pdf_invalid_relative_domain", $html);
+					// placeholder for pdf visible
+					$parser->getOutput()->addModuleStyles( [ 'ext.pdfembed.styles' ] );
+					return Html::element( 'div', [
+						'id' => 'PDFEmbedPlaceholder'
+					] );
                 }
                 return self::error("embed_pdf_invalid_url", $html);
             }
