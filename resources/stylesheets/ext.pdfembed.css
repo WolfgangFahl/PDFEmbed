@@ -1,4 +1,4 @@
-#PDFEmbedPlaceholder {
+div.PDFEmbedPlaceholder {
 	/* @embed */
 	background-image: url( '../images/pdf-embed-placeholder.svg' );
 	width: 200px;

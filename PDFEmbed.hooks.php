@@ -189,7 +189,7 @@ class PDFEmbed
 					// placeholder for pdf visible
 					$parser->getOutput()->addModuleStyles( [ 'ext.pdfembed.styles' ] );
 					return Html::element( 'div', [
-						'id' => 'PDFEmbedPlaceholder'
+						'class' => 'PDFEmbedPlaceholder'
 					] );
                 }
                 return self::error("embed_pdf_invalid_url", $html);
