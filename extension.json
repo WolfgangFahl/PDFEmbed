@@ -32,6 +32,15 @@
 		"PDFEmbed": "PDFEmbed.hooks.php",
 		"PDFHandler": "classes/PDFHandler.class.php"
 	},
+	"ResourceModules": {
+		"ext.pdfembed.styles": {
+			"styles": "stylesheets/ext.pdfembed.css"
+		}
+	},
+	"ResourceFileModulePaths": {
+		"localBasePath": "resources",
+		"remoteExtPath": "PDFembed/resources"
+	},
 	"Hooks": {
 		"ParserFirstCallInit": "PDFEmbed::onParserFirstCallInit"
 	},
