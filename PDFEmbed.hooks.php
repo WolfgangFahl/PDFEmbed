@@ -94,7 +94,7 @@ class PDFEmbed
      *            object PPFrame object.
      * @return string HTML
      */
-    static public function generateTag($obj, $args = [], Parser $parser, PPFrame $frame)
+    static public function generateTag($obj, $args = [], ?Parser $parser, ?PPFrame $frame)
     {
         global $wgPdfEmbed, $wgRequest, $wgPDF;
         // disable the cache
