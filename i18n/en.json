@@ -4,11 +4,13 @@
 	},
 	"pdfembed": "PDF Embed",
 	"pdfembed_description": "Media handler extension for PDF files.",
+	"pdfembed-permission-problem-category": "Pages with a &lt;pdf> tag that were last editted by a user without permission to use the tag.",
+	"pdfembed-permission-problem-category-desc": "The page contains a &lt;pdf> tag.",
 	"embed_pdf_invalid_height": "The height $1 is invalid.",
 	"embed_pdf_invalid_width": "The width $1 is invalid.",
-	"embed_pdf_no_permission": "You do not have permission to embed PDF files.",
+	"embed_pdf_no_permission": "The last editor of this page did not have the right to $1.",
 	"embed_pdf_blank_file": "The URL or file path given to embed a PDF is blank.",
 	"embed_pdf_invalid_file": "The URL or file path $1 does not exist.",
-	"embed_pdf_invalid_user": "An invalid user was specified to permission testing to embed this PDF.",
+	"embed_pdf_invalid_user": "Internal error: Invalid user.",
 	"right-embed_pdf": "Embed PDFs into pages"
 }

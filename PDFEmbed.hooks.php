@@ -106,13 +106,9 @@ class PDFEmbed
         // check the action which triggered us
         $requestAction = $wgRequest->getVal('action');
 
-        // depending on the action get the responsible user
-        if ($requestAction == 'edit' || $requestAction == 'submit') {
-            $user = RequestContext::getMain()->getUser();
-        } else {
+        if ($requestAction === null) {
             // https://www.mediawiki.org/wiki/Manual:UserFactory.php
             $revUserName = $parser->getRevisionUser();
-
             if (empty($revUserName)) {
                 return self::error('embed_pdf_invalid_user');
             }
@@ -121,12 +117,16 @@ class PDFEmbed
             $user = $userFactory->newFromName($revUserName);
         }
 
-        if (empty($user)) {
-            return self::error('embed_pdf_invalid_user');
+        // depending on the action get the responsible user
+        if ($requestAction === 'edit' || $requestAction === 'submit') {
+            $user = RequestContext::getMain()->getUser();
         }
 
-        if (!MediaWikiServices::getInstance()->getPermissionManager()->userHasRight($user, 'embed_pdf')) {
-            return self::error('embed_pdf_no_permission');
+        if (!($user instanceof UserIdentity &&
+              MediaWikiServices::getInstance()->getPermissionManager()->userHasRight($user, 'embed_pdf')
+        )) {
+            $parser->addTrackingCategory("pdfembed-permission-problem-category");
+            return self::error('embed_pdf_no_permission', wfMessage('right-embed_pdf'));
         }
 
         // we don't want the html but just the href of the link
