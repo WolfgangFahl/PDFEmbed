@@ -122,7 +122,7 @@ class PDFEmbed
             $user = RequestContext::getMain()->getUser();
         }
 
-        if (!($user instanceof UserIdentity &&
+        if (!($user instanceof User &&
               MediaWikiServices::getInstance()->getPermissionManager()->userHasRight($user, 'embed_pdf')
         )) {
             $parser->addTrackingCategory("pdfembed-permission-problem-category");
