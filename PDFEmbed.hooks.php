@@ -24,7 +24,7 @@ class PDFEmbed
      *            object Parser object passed as a reference.
      * @return boolean true
      */
-    static public function onParserFirstCallInit(Parser &$parser)
+    static public function onParserFirstCallInit(Parser &$parser): bool
     {
         $parser->setHook('pdf', 'PDFEmbed::generateTag');
 
@@ -56,7 +56,7 @@ class PDFEmbed
      *            filename - the filename for which to fix the prefix
      * @return    string - the filename without the File: / Media: or i18n File/Media prefix
      */
-    static public function removeFilePrefix($filename)
+    static public function removeFilePrefix($filename): string
     {
         $mwServices = MediaWikiServices::getInstance();
 
@@ -94,7 +94,7 @@ class PDFEmbed
      *            object PPFrame object.
      * @return string HTML
      */
-    static public function generateTag($obj, $args = [], Parser $parser, PPFrame $frame)
+    static public function generateTag($obj, $args = [], ?Parser $parser, ?PPFrame $frame): string
     {
         global $wgPdfEmbed, $wgRequest, $wgPDF;
         // disable the cache
@@ -103,16 +103,27 @@ class PDFEmbed
         // grab the uri by parsing to html
         $html = $parser->recursiveTagParse($obj, $frame);
 
-		$request = RequestContext::getMain();
+        if ($requestAction === null) {
+            // https://www.mediawiki.org/wiki/Manual:UserFactory.php
+            $revUserName = $parser->getRevisionUser();
+            if (empty($revUserName)) {
+                return self::error('embed_pdf_invalid_user');
+            }
 
-		$user = $request->getUser();
-
-        if (empty($user)) {
-            return self::error('embed_pdf_invalid_user');
+            $userFactory = MediaWikiServices::getInstance()->getUserFactory();
+            $user = $userFactory->newFromName($revUserName);
         }
 
-        if (!MediaWikiServices::getInstance()->getPermissionManager()->userHasRight($user, 'embed_pdf')) {
-            return self::error('embed_pdf_no_permission');
+        // depending on the action get the responsible user
+        if ($requestAction === 'edit' || $requestAction === 'submit') {
+            $user = RequestContext::getMain()->getUser();
+        }
+
+        if (!($user instanceof User &&
+              MediaWikiServices::getInstance()->getPermissionManager()->userHasRight($user, 'embed_pdf')
+        )) {
+            $parser->addTrackingCategory("pdfembed-permission-problem-category");
+            return self::error('embed_pdf_no_permission', wfMessage('right-embed_pdf'));
         }
 
         // we don't want the html but just the href of the link
@@ -247,7 +258,7 @@ class PDFEmbed
      *            boolean iframe - True if an iframe should be returned else an object is returned
      * @return string HTML code for iframe.
      */
-    static private function embed($url, $width, $height, $page, $iframe)
+    static private function embed($url, $width, $height, $page, $iframe): string
     {
         # secure and concatenate the url
         $pdfSafeUrl = htmlentities($url) . '#page=' . $page;
@@ -289,7 +300,7 @@ class PDFEmbed
      *            params any parameters for the error message
      * @return string HTML error message.
      */
-    static private function error($messageKey, ...$params)
+    static private function error($messageKey, ...$params): string
     {
         return Xml::span(wfMessage($messageKey, $params)->plain(), 'error');
     }

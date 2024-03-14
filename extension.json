@@ -54,5 +54,8 @@
 			"iframe": true
 		}
 	},
+	"TrackingCategories": [
+		"pdfembed-permission-problem-category"
+	],
 	"manifest_version": 1
 }
