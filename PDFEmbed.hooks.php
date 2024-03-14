@@ -103,21 +103,8 @@ class PDFEmbed
         // grab the uri by parsing to html
         $html = $parser->recursiveTagParse($obj, $frame);
 
-        if ($requestAction === null) {
-            // https://www.mediawiki.org/wiki/Manual:UserFactory.php
-            $revUserName = $parser->getRevisionUser();
-            if (empty($revUserName)) {
-                return self::error('embed_pdf_invalid_user');
-            }
-
-            $userFactory = MediaWikiServices::getInstance()->getUserFactory();
-            $user = $userFactory->newFromName($revUserName);
-        }
-
-        // depending on the action get the responsible user
-        if ($requestAction === 'edit' || $requestAction === 'submit') {
-            $user = RequestContext::getMain()->getUser();
-        }
+	$request = RequestContext::getMain();
+	$user = $request->getUser();
 
         if (!($user instanceof User &&
               MediaWikiServices::getInstance()->getPermissionManager()->userHasRight($user, 'embed_pdf')
