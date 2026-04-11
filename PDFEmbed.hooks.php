@@ -103,31 +103,7 @@ class PDFEmbed
         // grab the uri by parsing to html
         $html = $parser->recursiveTagParse($obj, $frame);
 
-        // check the action which triggered us
-        $requestAction = $wgRequest->getVal('action');
 
-        if ($requestAction === null) {
-            // https://www.mediawiki.org/wiki/Manual:UserFactory.php
-            $revUserName = $parser->getRevisionUser();
-            if (empty($revUserName)) {
-                return self::error('embed_pdf_invalid_user');
-            }
-
-            $userFactory = MediaWikiServices::getInstance()->getUserFactory();
-            $user = $userFactory->newFromName($revUserName);
-        }
-
-        // depending on the action get the responsible user
-        if ($requestAction === 'edit' || $requestAction === 'submit') {
-            $user = RequestContext::getMain()->getUser();
-        }
-
-        if (!($user instanceof User &&
-              MediaWikiServices::getInstance()->getPermissionManager()->userHasRight($user, 'embed_pdf')
-        )) {
-            $parser->addTrackingCategory("pdfembed-permission-problem-category");
-            return self::error('embed_pdf_no_permission', wfMessage('right-embed_pdf'));
-        }
 
         // we don't want the html but just the href of the link
         // so we might reverse some of the parsing again by examining the html
