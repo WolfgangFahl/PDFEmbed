@@ -1,6 +1,6 @@
 {
 	"name": "PDFEmbed",
-	"version": "3.0.1",
+	"version": "3.1.0",
 	"author": [
 		"[https://www.mediawiki.org/wiki/User:Alexia_E._Smith Alexia E. Smith]",
 		"[http://www.bitplan.com/index.php/Wolfgang_Fahl Wolfgang Fahl/ProfiWiki]",
@@ -8,11 +8,11 @@
 		"[https://clkoerner.com Chris Koerner]",
 		"[https://github.com/metalevel-tech Spas Z. Spasov]"
 	],
-	"url": "https://www.mediawiki.org/wiki/Extension:PDFEmbed",
+	"url": "https://github.com/WolfgangFahl/PDFEmbed",
 	"descriptionmsg": "pdfembed_description",
 	"license-name": "LGPL-3.0-only",
 	"requires": {
-		"MediaWiki": ">= 1.29.0"
+		"MediaWiki": ">= 1.35.0"
 	},
 	"type": "parserhook",
 	"GroupPermissions": {
@@ -29,8 +29,16 @@
 		]
 	},
 	"AutoloadClasses": {
-		"PDFEmbed": "PDFEmbed.hooks.php",
-		"PDFHandler": "classes/PDFHandler.class.php"
+		"PDFEmbed": "PDFEmbed.hooks.php"
+	},
+	"ResourceModules": {
+		"ext.pdfembed.styles": {
+			"styles": "stylesheets/ext.pdfembed.css"
+		}
+	},
+	"ResourceFileModulePaths": {
+		"localBasePath": "resources",
+		"remoteExtPath": "PDFEmbed/resources"
 	},
 	"Hooks": {
 		"ParserFirstCallInit": "PDFEmbed::onParserFirstCallInit"
@@ -45,8 +53,5 @@
 			"iframe": true
 		}
 	},
-	"TrackingCategories": [
-		"pdfembed-permission-problem-category"
-	],
 	"manifest_version": 1
 }

@@ -7,10 +7,16 @@
 	},
 	"pdfembed": "PDF Embed",
 	"pdfembed_description": "Ermöglicht das Einbetten von PDF-Dateien",
-  "embed_pdf_invalid_height": "height $1 ist nicht anwendbar.",
-  "embed_pdf_invalid_width": "width $1 ist nicht anwendbar.",
+	"embed_pdf_invalid_height": "Die Höhe $1 ist ungültig.",
+	"embed_pdf_invalid_width": "Die Breite $1 ist ungültig.",
 	"embed_pdf_no_permission": "Du bist nicht berechtigt PDF-Dateien einzubetten.",
 	"embed_pdf_blank_file": "Die URL bzw. der Dateipfad zum Einbetten der PDF-Datei ist leer.",
 	"embed_pdf_invalid_file": "Die URL bzw. der Dateipfad $1 existieren nicht.",
-	"embed_pdf_invalid_user": "Ein ungültiger Benutzer wurde angegeben."
+	"embed_pdf_invalid_user": "Ein ungültiger Benutzer wurde angegeben.",
+	"embed_pdf_invalid_url": "Die URL $1 ist keine gültige URL einer PDF-Datei.",
+	"embed_pdf_invalid_relative_domain": "Die URL $1 hat keinen Host; relative URLs können nicht eingebettet werden.",
+	"embed_pdf_domain_not_white": "Der Host $1 steht nicht auf der Liste der erlaubten PDF-Hosts.",
+	"embed_pdf_domain_black": "Der Host $1 steht auf der Liste der gesperrten PDF-Hosts.",
+	"embed_pdf_load": "PDF laden",
+	"right-embed_pdf": "PDF-Dateien in Seiten einbetten"
 }
