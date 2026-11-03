@@ -1,5 +1,15 @@
 # Change log
 
+## v3.1.0
+
+* MediaWiki 1.43 and PHP 8.3: the tag signature has no optional parameter before required ones; requires MediaWiki 1.35 or newer.
+* The target of the tag is taken from the href of the first anchor the parser produces, else from the stripped text, so bare URLs and `{{filepath:}}` calls work again when the parser wraps them in a paragraph (#7, #28).
+* Messages for invalid URL, relative URL, host not allowed and host blocked exist in en and de instead of bare keys (#28).
+* `width` and `height` accept a percentage of the parent (#6).
+* An empty tag shows a placeholder instead of an error, taken over from pull request #16 by Miriam Schlindwein.
+* Manifest cleanup: the autoload entry of a class that does not exist and the tracking category of the removed permission check are gone; the url points to this repository.
+* README, AGENTS.md and the examples on https://wiki.bitplan.com/index.php/PDFEmbed describe the current behaviour.
+
 ## v3.0.0
 
 * Make it fully compatible with MediaWiki 1.38. Deal with all deprecated features:
