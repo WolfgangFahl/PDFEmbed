@@ -81,52 +81,84 @@ class PDFEmbed
     }
 
     /**
+     * get the target of the tag from the html the parser made of its content:
+     * the href of the first anchor, since the parser turns a bare or linked url
+     * into an anchor and may wrap it in a paragraph, else the text without tags
+     *
+     * @param string $html - the html the parser produced for the tag content
+     * @return string - the url or file name the tag points at
+     */
+    static public function targetOfHtml(string $html): string
+    {
+        $target = $html;
+        if (preg_match('~<a\b[^>]*\bhref\s*=\s*"([^"]*)"~i', $html, $matches)) {
+            $target = html_entity_decode($matches[1], ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        } else {
+            $target = html_entity_decode(strip_tags($html), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        }
+        return trim($target);
+    }
+
+    /**
+     * get a size for the iframe or object: a number of pixels or a percentage
+     * of the parent, see https://github.com/WolfgangFahl/PDFEmbed/issues/6
+     *
+     * @param string $sizeStr - the size as given, e.g. 800, 800px or 100%
+     * @return string|null - the size to use in the html attribute, null if invalid
+     */
+    static public function size(string $sizeStr): ?string
+    {
+        $size = null;
+        $sizeStr = trim($sizeStr);
+        if (preg_match('~^(\d+)(px)?$~', $sizeStr, $matches)) {
+            $size = $matches[1];
+        } elseif (preg_match('~^(\d{1,3})%$~', $sizeStr, $matches)) {
+            $size = $matches[1] . '%';
+        }
+        return $size;
+    }
+
+    /**
      * Generates the PDF object tag.
      *
      * @access public
-     * @param
-     *            string Namespace prefixed article of the PDF file to display.
-     * @param
-     *            array Arguments on the tag.
-     * @param
-     *            object Parser object.
-     * @param
-     *            object PPFrame object.
+     * @param string|null $obj - the tag content: a file name, a File: link or a url
+     * @param array $args - the attributes of the tag: width, height, page, iframe
+     * @param Parser $parser - the parser
+     * @param PPFrame $frame - the frame the tag is parsed in
      * @return string HTML
      */
-    static public function generateTag($obj, $args = [], ?Parser $parser, ?PPFrame $frame): string
+    static public function generateTag(?string $obj, array $args, Parser $parser, PPFrame $frame): string
     {
-        global $wgPdfEmbed, $wgRequest, $wgPDF;
+        global $wgPdfEmbed, $wgPDF;
         // disable the cache
         PDFEmbed::disableCache($parser);
 
-        // grab the uri by parsing to html
-        $html = $parser->recursiveTagParse($obj, $frame);
+        // the parser turns the content into html, e.g. an anchor for a url;
+        // we only want the target of that html
+        $html = $parser->recursiveTagParse($obj ?? '', $frame);
+        $target = self::targetOfHtml($html);
 
-
-
-        // we don't want the html but just the href of the link
-        // so we might reverse some of the parsing again by examining the html
-        // whether it contains an anchor <a href= ...
-        if (strpos($html, '<a') !== false) {
-            $anchor = new SimpleXMLElement($html);
-            // is there a href element?
-            if (isset($anchor['href'])) {
-                // that's what we want ...
-                $html = $anchor['href'];
-            }
+        if ($target === '') {
+            // an empty tag, e.g. just inserted in the VisualEditor: a placeholder
+            // instead of an error, see https://github.com/WolfgangFahl/PDFEmbed/pull/16
+            $parser->getOutput()->addModuleStyles(['ext.pdfembed.styles']);
+            return Html::element('div', [
+                'class' => 'PDFEmbedPlaceholder',
+                'title' => wfMessage('embed_pdf_blank_file')->plain()
+            ]);
         }
 
         if (array_key_exists('width', $args)) {
             $widthStr = $parser->recursiveTagParse($args['width'], $frame);
         } else {
-            $widthStr = $wgPdfEmbed['width'];
+            $widthStr = (string) $wgPdfEmbed['width'];
         }
 
         if (array_key_exists('height', $args)) {
             $heightStr = $parser->recursiveTagParse($args['height'], $frame);
         } else {
-            $heightStr = $wgPdfEmbed['height'];
+            $heightStr = (string) $wgPdfEmbed['height'];
         }
 
         if (array_key_exists('page', $args)) {
@@ -135,14 +167,13 @@ class PDFEmbed
             $page = 1;
         }
 
-        if (!preg_match('~^\d+~', $widthStr)) {
+        $width = self::size($widthStr);
+        $height = self::size($heightStr);
+        if ($width === null) {
             return self::error("embed_pdf_invalid_width", $widthStr);
-        } elseif (!preg_match('~^\d+~', $heightStr)) {
+        } elseif ($height === null) {
             return self::error("embed_pdf_invalid_height", $heightStr);
         }
-
-        $width = intVal($widthStr);
-        $height = intVal($heightStr);
 
         if (array_key_exists('iframe', $args)) {
             $iframe = $parser->recursiveTagParse($args['iframe'], $frame);
@@ -152,11 +183,11 @@ class PDFEmbed
 
         # if there are no slashes in the name we assume this
         # might be a pointer to a file
-        if (preg_match('~^([^\/]+\.pdf)(#[0-9]+)?$~', $html, $matches)) {
+        if (preg_match('~^([^\/]+\.pdf)(#[0-9]+)?$~i', $target, $matches)) {
             # re contains the groups
             $filename = $matches[1];
             if (count($matches) == 3) {
-                $page = $matches[2];
+                $page = intval(substr($matches[2], 1));
             }
 
             $filename = self::removeFilePrefix($filename);
@@ -170,49 +201,38 @@ class PDFEmbed
             }
         } else {
             // parse the given url
-            $domain = parse_url($html);
+            $domain = parse_url($target);
 
             // check that the parsing worked and retrieve a valid host
             // no relative urls are allowed ...
-            if ($domain === false || (!isset($domain['host']))) {
-                if (!isset($domain['host'])) {
-                    return self::error("embed_pdf_invalid_relative_domain", $html);
-                }
-                return self::error("embed_pdf_invalid_url", $html);
+            if ($domain === false) {
+                return self::error("embed_pdf_invalid_url", $target);
+            }
+            if (!isset($domain['host'])) {
+                return self::error("embed_pdf_invalid_relative_domain", $target);
             }
 
             if (isset($wgPDF)) {
-
-                foreach ($wgPDF['black'] as $x => $y) {
-                    $wgPDF['black'][$x] = strtolower($y);
-                }
-                foreach ($wgPDF['white'] as $x => $y) {
-                    $wgPDF['white'][$x] = strtolower($y);
-                }
+                $black = array_map('strtolower', $wgPDF['black'] ?? []);
+                $white = array_map('strtolower', $wgPDF['white'] ?? []);
 
                 $host = strtolower($domain['host']);
-                $whitelisted = false;
+                $whitelisted = in_array($host, $white);
 
-                if (in_array($host, $wgPDF['white'])) {
-                    $whitelisted = true;
-                }
-
-                if ($wgPDF['white'] != array() && !$whitelisted) {
+                if ($white != [] && !$whitelisted) {
                     return self::error("embed_pdf_domain_not_white", $host);
                 }
 
-                if (!$whitelisted) {
-                    if (in_array($host, $wgPDF['black'])) {
-                        return self::error("embed_pdf_domain_black", $host);
-                    }
+                if (!$whitelisted && in_array($host, $black)) {
+                    return self::error("embed_pdf_domain_black", $host);
                 }
             }
 
             # check that url is valid
-            if (filter_var($html, FILTER_VALIDATE_URL, FILTER_FLAG_PATH_REQUIRED)) {
-                return self::embed($html, $width, $height, $page, $iframe);
+            if (filter_var($target, FILTER_VALIDATE_URL, FILTER_FLAG_PATH_REQUIRED)) {
+                return self::embed($target, $width, $height, $page, $iframe);
             } else {
-                return self::error('embed_pdf_invalid_url', $html);
+                return self::error('embed_pdf_invalid_url', $target);
             }
         }
     }
@@ -221,16 +241,11 @@ class PDFEmbed
      * Returns an HTML node for the given file as string.
      *
      * @access private
-     * @param
-     *            URL url to embed.
-     * @param
-     *            integer width of the iframe.
-     * @param
-     *            integer height of the iframe.
-     * @param
-     *            integer page of the pdf file.
-     * @param
-     *            boolean iframe - True if an iframe should be returned else an object is returned
+     * @param string $url - the url to embed
+     * @param string $width - width of the iframe, pixels or a percentage
+     * @param string $height - height of the iframe, pixels or a percentage
+     * @param int $page - page of the pdf file
+     * @param bool $iframe - True if an iframe should be returned else an object is returned
      * @return string HTML code for iframe.
      */
     static private function embed($url, $width, $height, $page, $iframe): string
@@ -260,7 +275,7 @@ class PDFEmbed
                 [
                     'href' => $pdfSafeUrl
                 ],
-                'load PDF' // i18n?
+                wfMessage('embed_pdf_load')->plain()
             ));
         }
     }
